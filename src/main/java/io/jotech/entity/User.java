@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -40,6 +41,7 @@ public class User implements Serializable {
     @Column(unique = true)
     @NotEmpty
     @NotNull
+    @Email
     private String email;
     @Embedded
     private Address address;
