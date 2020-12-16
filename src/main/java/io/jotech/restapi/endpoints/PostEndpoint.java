@@ -56,7 +56,7 @@ public interface PostEndpoint {
                             content =
                             @Content(
                                     schema = @Schema(
-                                            implementation = Post.class
+                                            implementation =Post.class
                                     )
                             )
                     ),

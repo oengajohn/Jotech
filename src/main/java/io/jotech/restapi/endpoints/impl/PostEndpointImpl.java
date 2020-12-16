@@ -2,6 +2,7 @@ package io.jotech.restapi.endpoints.impl;
 
 import io.jotech.entity.Post;
 import io.jotech.repository.PostRepository;
+import io.jotech.restapi.endpoints.RestApiResponse;
 import io.jotech.restapi.endpoints.PostEndpoint;
 
 import javax.ejb.EJB;
@@ -33,7 +34,10 @@ public class PostEndpointImpl implements PostEndpoint {
                 .path(PostEndpoint.class)
                 .path(String.valueOf(savedPost.getId()))
                 .build();
-        return Response.created(location).entity(savedPost).build();
+        RestApiResponse<Post> postApiResponse = new RestApiResponse<>();
+        postApiResponse.setData(savedPost);
+        postApiResponse.setSuccess(true);
+        return Response.created(location).entity(postApiResponse).build();
     }
 
     @Override
@@ -50,12 +54,15 @@ public class PostEndpointImpl implements PostEndpoint {
         if (!postRepository.existsById(id)) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        Post updatePost = postRepository.update(post);
+        Post updatedPost = postRepository.update(post);
         URI location = uriInfo.getBaseUriBuilder()
                 .path(PostEndpoint.class)
-                .path(String.valueOf(updatePost.getId()))
+                .path(String.valueOf(updatedPost.getId()))
                 .build();
-        return Response.created(location).entity(updatePost).build();
+        RestApiResponse<Post> postApiResponse = new RestApiResponse<>();
+        postApiResponse.setData(updatedPost);
+        postApiResponse.setSuccess(true);
+        return Response.created(location).entity(postApiResponse).build();
 
     }
 
@@ -65,6 +72,8 @@ public class PostEndpointImpl implements PostEndpoint {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         postRepository.deleteById(id);
-        return Response.ok().build();
+        RestApiResponse<Post> postApiResponse = new RestApiResponse<>();
+        postApiResponse.setSuccess(true);
+        return Response.ok().entity(postApiResponse).build();
     }
 }

@@ -29,6 +29,7 @@ public class UserEndpointImpl implements UserEndpoint {
 
     @Override
     public Response createUser(User user, UriInfo uriInfo) {
+        System.out.println(user);
         if (userRepository.existsById(user.getId())) {
             return Response.status(Response.Status.CONFLICT).build();
         }
