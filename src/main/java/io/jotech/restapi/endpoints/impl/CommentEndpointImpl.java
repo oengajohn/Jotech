@@ -3,67 +3,104 @@ package io.jotech.restapi.endpoints.impl;
 import io.jotech.entity.Comment;
 import io.jotech.repository.CommentRepository;
 import io.jotech.restapi.endpoints.CommentEndpoint;
-
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.validation.Valid;
+import io.jotech.restapi.endpoints.RestApiResponse;
+import java.net.URI;
+import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.Optional;
 
-@Stateless
 public class CommentEndpointImpl implements CommentEndpoint {
-    @EJB
-    private CommentRepository commentRepository;
-    @Override
-    public Response listAllComments(long postId) {
-        return postId > 0 ? Response.ok(commentRepository.findAllByPostId(postId)).build()
-                : Response.ok(commentRepository.findAll()).build();
+@Inject
+private CommentRepository commentRepository;
+  @Override
+  public Response listAllComments(Long postId, int start, int limit) {
+    var list = commentRepository.findAllByPostId(postId, start, limit);
+    return Response.ok().entity(
+        RestApiResponse.builder()
+            .success(true)
+            .data(list)
+            .totalCount(commentRepository.count())
+            .build()
+    ).build();
+  }
 
+  @Override
+  public Response createComment(Comment comment, UriInfo uriInfo) {
+    if (commentRepository.existsById(comment.getId())) {
+      return Response.status(Response.Status.CONFLICT).entity(
+          RestApiResponse.builder()
+              .success(true)
+              .msg("Already exists a record")
+              .build()
+      ).build();
     }
+    var savedPhoto = commentRepository.create(comment);
+    URI location = uriInfo.getBaseUriBuilder()
+        .path(CommentEndpoint.class)
+        .path(String.valueOf(savedPhoto.getId()))
+        .build();
 
-    @Override
-    public Response createComment(@Valid Comment comment, UriInfo uriInfo) {
-        if (commentRepository.existsById(comment.getId())) {
-            return Response.status(Response.Status.CONFLICT).build();
-        }
-        Comment savedComment = commentRepository.save(comment);
-        URI location = uriInfo.getBaseUriBuilder()
-                .path(CommentEndpoint.class)
-                .path(String.valueOf(savedComment.getId()))
-                .build();
-        return Response.created(location).entity(savedComment).build();
-    }
+    return Response.created(location).entity(
+        RestApiResponse.builder()
+            .success(true)
+            .data(savedPhoto)
+            .build()
+    ).build();
+  }
 
-    @Override
-    public Response getCommentById(long id) {
-        Optional<Comment> optionalComment = commentRepository.findById(id);
-        return optionalComment.isPresent() ?
-                Response.ok().entity(optionalComment.get()).build()
-                :
-                Response.status(Response.Status.NOT_FOUND).build();
-    }
+  @Override
+  public Response getCommentById(long id) {
+    var optionalComment = commentRepository.findById(id);
 
-    @Override
-    public Response updateComment(long id, @Valid Comment comment, UriInfo uriInfo) {
-        if (!commentRepository.existsById(id)) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        Comment updateComment = commentRepository.update(comment);
-        URI location = uriInfo.getBaseUriBuilder()
-                .path(CommentEndpoint.class)
-                .path(String.valueOf(updateComment.getId()))
-                .build();
-        return Response.created(location).entity(updateComment).build();
-    }
+    return optionalComment.isPresent() ?
+        Response.ok().entity(
+            RestApiResponse.builder()
+                .success(true)
+                .data(optionalComment.get())
+                .build()
+        ).build()
+        :
+            Response.status(Response.Status.NOT_FOUND)
+                .entity(RestApiResponse.builder()
+                    .success(false)
+                    .msg("Not found")
+                    .build()
+                ).build();
+  }
 
-    @Override
-    public Response deleteComment(long id) {
-        if (!commentRepository.existsById(id)) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        commentRepository.deleteById(id);
-        return Response.ok().build();
+  @Override
+  public Response updateComment(long id, Comment comment, UriInfo uriInfo) {
+    if (!commentRepository.existsById(id)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(RestApiResponse.builder()
+          .success(false)
+          .msg("Not found")
+          .build()
+      ).build();
     }
+    var updatedComment = commentRepository.edit(comment);
+    URI location = uriInfo.getBaseUriBuilder()
+        .path(CommentEndpoint.class)
+        .path(String.valueOf(updatedComment.getId()))
+        .build();
+    return Response.created(location).entity(
+        RestApiResponse.builder()
+            .data(updatedComment)
+            .success(true)
+            .build()
+    ).build();
+  }
+
+  @Override
+  public Response deleteComment(long id) {
+    if (!commentRepository.existsById(id)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(RestApiResponse.builder()
+          .success(false)
+          .msg("Not found")
+          .build()
+      ).build();
+    }
+    commentRepository.deleteById(id);
+    return Response.ok().entity(RestApiResponse.builder().success(true).build()).build();
+
+  }
 }

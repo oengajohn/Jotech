@@ -2,19 +2,14 @@ package io.jotech.repository.impl;
 
 import io.jotech.entity.Album;
 import io.jotech.repository.AlbumRepository;
-import io.jotech.util.Constants;
-
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
-@Stateless
-public class AlbumRepositoryImpl extends CrudRepositoryImpl<Album, Long> implements AlbumRepository {
-    @PersistenceContext(name = Constants.PERSISTENCE_UNIT_NAME)
+
+public class AlbumRepositoryImpl extends JpaRepositoryImplementation<Album, Long> implements AlbumRepository {
+    @Inject
     private EntityManager entityManager;
 
     public AlbumRepositoryImpl() {
@@ -26,17 +21,14 @@ public class AlbumRepositoryImpl extends CrudRepositoryImpl<Album, Long> impleme
     }
 
     @Override
-    public List<Album> findAllByUserId(long userId) {
-        CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();
-        CriteriaQuery<Album> query = criteriaBuilder.createQuery(Album.class);
-        Root<Album> from = query.from(Album.class);
-        query.select(from)
-                .where(
-                        criteriaBuilder.equal(
-                                from.get("user").get("id"),
-                                userId
-                        )
-                );
-        return getEntityManager().createQuery(query).getResultList();
+    public List<Album> findAllByUserId(Long userId,int start, int limit) {
+      var list=  findAll();
+        if (userId!=null){
+            return list.stream().filter(album -> album.getUser().getId()==userId)
+                .skip(start)
+                .limit(limit)
+                .collect(Collectors.toList());
+        }
+        return list.stream().skip(start).limit(limit).collect(Collectors.toList());
     }
 }

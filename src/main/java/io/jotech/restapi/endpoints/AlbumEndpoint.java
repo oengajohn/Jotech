@@ -1,17 +1,16 @@
 package io.jotech.restapi.endpoints;
 
 import io.jotech.entity.Album;
-import io.jotech.entity.Todo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -28,7 +27,6 @@ import javax.ws.rs.core.UriInfo;
 @Tag(name = "albums")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-
 public interface AlbumEndpoint {
     @Operation(
             summary = "Get all albums",
@@ -38,7 +36,7 @@ public interface AlbumEndpoint {
                             content = @Content(
                                     array = @ArraySchema(
                                             schema = @Schema(
-                                                    implementation = Todo.class
+                                                    implementation = Album.class
                                             )
                                     )
                             )
@@ -46,8 +44,11 @@ public interface AlbumEndpoint {
 
             })
     @GET
-    Response listAllAlbums(@QueryParam("userId") long userId);
-
+    Response listAllAlbums(
+        @QueryParam("userId") Long userId,
+        @QueryParam("start")  @DefaultValue("0") int start,
+        @QueryParam("limit") @DefaultValue("10") int limit
+    );
 
     @Operation(
             summary = "Create album",
@@ -144,7 +145,5 @@ public interface AlbumEndpoint {
     @DELETE
     @Path("{id}")
     Response deleteAlbum(@PathParam("id") long id);
-
-
 
 }

@@ -1,17 +1,16 @@
 package io.jotech.restapi.endpoints;
 
 import io.jotech.entity.Post;
-import io.jotech.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -45,7 +44,11 @@ public interface PostEndpoint {
 
             })
     @GET
-    Response listAllPosts(@QueryParam("userId") long userId);
+    Response listAllPosts(
+        @QueryParam("userId") Long userId,
+        @QueryParam("start")  @DefaultValue("0") int start,
+        @QueryParam("limit") @DefaultValue("10") int limit
+    );
 
     @Operation(
             summary = "Create post",
@@ -69,7 +72,7 @@ public interface PostEndpoint {
             }
     )
     @POST
-    Response createPost(@Valid Post user,
+    Response createPost(@Valid Post post,
                         @Context UriInfo uriInfo);
 
     @GET
@@ -103,7 +106,7 @@ public interface PostEndpoint {
                             content =
                             @Content(
                                     schema = @Schema(
-                                            implementation = User.class
+                                            implementation = Post.class
                                     )
                             )
                     ),
@@ -123,7 +126,7 @@ public interface PostEndpoint {
     )
     @PUT
     @Path("{id}")
-    Response updatePost(@PathParam("id") long id, @Valid Post user,
+    Response updatePost(@PathParam("id") long id, @Valid Post post,
                         @Context UriInfo uriInfo);
 
     @Operation(

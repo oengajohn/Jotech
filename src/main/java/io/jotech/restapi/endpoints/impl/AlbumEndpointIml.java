@@ -1,36 +1,33 @@
 package io.jotech.restapi.endpoints.impl;
 
-import io.jotech.entity.Post;
-import io.jotech.repository.PostRepository;
-import io.jotech.restapi.endpoints.PostEndpoint;
+import io.jotech.entity.Album;
+import io.jotech.repository.AlbumRepository;
+import io.jotech.restapi.endpoints.AlbumEndpoint;
 import io.jotech.restapi.endpoints.RestApiResponse;
 import java.net.URI;
-import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-public class PostEndpointImpl implements PostEndpoint {
-
+public class AlbumEndpointIml implements AlbumEndpoint {
   @Inject
-  private PostRepository postRepository;
+  private AlbumRepository albumRepository;
 
   @Override
-  public Response listAllPosts(Long userId, int start, int limit) {
-    var list = postRepository.findAllByUserId(userId, start, limit);
+  public Response listAllAlbums(Long userId, int start, int limit) {
+    var list = albumRepository.findAllByUserId(userId, start, limit);
     return Response.ok().entity(
         RestApiResponse.builder()
             .success(true)
             .data(list)
-            .totalCount(postRepository.count())
+            .totalCount(albumRepository.count())
             .build()
     ).build();
-
   }
 
   @Override
-  public Response createPost(Post post, UriInfo uriInfo) {
-    if (postRepository.existsById(post.getId())) {
+  public Response createAlbum(Album album, UriInfo uriInfo) {
+    if (albumRepository.existsById(album.getId())) {
       return Response.status(Response.Status.CONFLICT).entity(
           RestApiResponse.builder()
               .success(true)
@@ -38,29 +35,29 @@ public class PostEndpointImpl implements PostEndpoint {
               .build()
       ).build();
     }
-    Post savedPost = postRepository.create(post);
+    var savedPhoto = albumRepository.create(album);
     URI location = uriInfo.getBaseUriBuilder()
-        .path(PostEndpoint.class)
-        .path(String.valueOf(savedPost.getId()))
+        .path(AlbumEndpoint.class)
+        .path(String.valueOf(savedPhoto.getId()))
         .build();
 
     return Response.created(location).entity(
         RestApiResponse.builder()
             .success(true)
-            .data(savedPost)
+            .data(savedPhoto)
             .build()
     ).build();
   }
 
   @Override
-  public Response getPostById(long id) {
-    Optional<Post> optionalPost = postRepository.findById(id);
+  public Response getAlbumById(long id) {
+    var optionalAlbum = albumRepository.findById(id);
 
-    return optionalPost.isPresent() ?
+    return optionalAlbum.isPresent() ?
         Response.ok().entity(
             RestApiResponse.builder()
                 .success(true)
-                .data(optionalPost.get())
+                .data(optionalAlbum.get())
                 .build()
         ).build()
         :
@@ -73,38 +70,38 @@ public class PostEndpointImpl implements PostEndpoint {
   }
 
   @Override
-  public Response updatePost(long id, Post post, UriInfo uriInfo) {
-    if (!postRepository.existsById(id)) {
+  public Response updateAlbum(long id, Album album, UriInfo uriInfo) {
+    if (!albumRepository.existsById(id)) {
       return Response.status(Response.Status.NOT_FOUND).entity(RestApiResponse.builder()
           .success(false)
           .msg("Not found")
           .build()
       ).build();
     }
-    var updatedPost = postRepository.edit(post);
+    var updatedAlbum = albumRepository.edit(album);
     URI location = uriInfo.getBaseUriBuilder()
-        .path(PostEndpoint.class)
-        .path(String.valueOf(updatedPost.getId()))
+        .path(AlbumEndpoint.class)
+        .path(String.valueOf(updatedAlbum.getId()))
         .build();
     return Response.created(location).entity(
         RestApiResponse.builder()
-            .data(updatedPost)
+            .data(updatedAlbum)
             .success(true)
             .build()
     ).build();
-
   }
 
   @Override
-  public Response deletePost(long id) {
-    if (!postRepository.existsById(id)) {
+  public Response deleteAlbum(long id) {
+    if (!albumRepository.existsById(id)) {
       return Response.status(Response.Status.NOT_FOUND).entity(RestApiResponse.builder()
           .success(false)
           .msg("Not found")
           .build()
       ).build();
     }
-    postRepository.deleteById(id);
+    albumRepository.deleteById(id);
     return Response.ok().entity(RestApiResponse.builder().success(true).build()).build();
+
   }
 }

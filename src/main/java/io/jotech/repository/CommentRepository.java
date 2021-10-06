@@ -4,6 +4,6 @@ import io.jotech.entity.Comment;
 
 import java.util.List;
 
-public interface CommentRepository extends CrudRepository<Comment,Long> {
-    List<Comment> findAllByPostId(long postId);
+public interface CommentRepository extends JpaRepository<Comment,Long> {
+    List<Comment> findAllByPostId(Long postId,int start, int limit);
 }

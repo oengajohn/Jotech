@@ -7,10 +7,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -44,7 +44,11 @@ public interface CommentEndpoint {
 
             })
     @GET
-    Response listAllComments(@QueryParam("postId") long postId);
+    Response listAllComments(
+        @QueryParam("postId") Long postId,
+        @QueryParam("start")  @DefaultValue("0") int start,
+        @QueryParam("limit") @DefaultValue("10") int limit
+    );
 
     @Operation(
             summary = "Create comment",
@@ -55,7 +59,7 @@ public interface CommentEndpoint {
                             content =
                             @Content(
                                     schema = @Schema(
-                                            implementation = Comment.class
+                                            implementation =Comment.class
                                     )
                             )
                     ),
@@ -74,7 +78,7 @@ public interface CommentEndpoint {
     @GET
     @Path("/{id}")
     @Operation(
-            summary = "Get comment by id",
+            summary = "Get comment by  id",
             responses = {
                     @ApiResponse(
                             description = "The comment with id",
@@ -97,7 +101,7 @@ public interface CommentEndpoint {
             summary = "Update comment",
             responses = {
                     @ApiResponse(
-                            description = "The comment",
+                            description = "The updated comment",
                             responseCode = "200",
                             content =
                             @Content(

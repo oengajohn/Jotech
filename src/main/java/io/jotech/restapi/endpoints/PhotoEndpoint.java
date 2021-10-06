@@ -1,4 +1,4 @@
-package io.jotech.restapi;
+package io.jotech.restapi.endpoints;
 
 import io.jotech.entity.Photo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,10 +7,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -27,7 +27,6 @@ import javax.ws.rs.core.UriInfo;
 @Tag(name = "photos")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-
 public interface PhotoEndpoint {
     @Operation(
             summary = "Get all photos",
@@ -45,8 +44,11 @@ public interface PhotoEndpoint {
 
             })
     @GET
-    Response listAllPhotos(@QueryParam("albumId") long albumId);
-
+    Response listAllPhotos(
+        @QueryParam("albumId") Long albumId,
+        @QueryParam("start")  @DefaultValue("0") int start,
+        @QueryParam("limit") @DefaultValue("10") int limit
+    );
 
     @Operation(
             summary = "Create photo",
@@ -143,7 +145,5 @@ public interface PhotoEndpoint {
     @DELETE
     @Path("{id}")
     Response deletePhoto(@PathParam("id") long id);
-
-
 
 }

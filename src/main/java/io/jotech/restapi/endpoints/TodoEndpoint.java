@@ -7,10 +7,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -27,7 +27,6 @@ import javax.ws.rs.core.UriInfo;
 @Tag(name = "todos")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-
 public interface TodoEndpoint {
     @Operation(
             summary = "Get all todos",
@@ -45,8 +44,11 @@ public interface TodoEndpoint {
 
             })
     @GET
-    Response listAllTodos(@QueryParam("userId") long userId);
-
+    Response listAllTodos(
+        @QueryParam("userId") Long userId,
+        @QueryParam("start")  @DefaultValue("0") int start,
+        @QueryParam("limit") @DefaultValue("10") int limit
+    );
 
     @Operation(
             summary = "Create todo",
@@ -143,7 +145,5 @@ public interface TodoEndpoint {
     @DELETE
     @Path("{id}")
     Response deleteTodo(@PathParam("id") long id);
-
-
 
 }

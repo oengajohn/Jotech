@@ -4,6 +4,6 @@ import io.jotech.entity.Album;
 
 import java.util.List;
 
-public interface AlbumRepository extends CrudRepository<Album,Long>{
-    List<Album> findAllByUserId(long userId);
+public interface AlbumRepository extends JpaRepository<Album,Long> {
+    List<Album> findAllByUserId(Long userId,int start, int limit);
 }

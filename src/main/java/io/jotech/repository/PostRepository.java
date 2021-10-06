@@ -4,6 +4,6 @@ import io.jotech.entity.Post;
 
 import java.util.List;
 
-public interface PostRepository extends CrudRepository<Post,Long>  {
-    List<Post> findAllByUserId(long userId);
+public interface PostRepository extends JpaRepository<Post,Long> {
+    List<Post> findAllByUserId(Long userId,int start,int limit);
 }
